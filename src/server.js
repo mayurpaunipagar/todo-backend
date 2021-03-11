@@ -55,8 +55,25 @@ app.post('/signup', async (req, res) => {
         res.status(201).send({ success: "Signed up" });
     }else{
         res.status(400).send({
-            err:`Username ${userName} already exists. Please choose another.`
+            err:`Username "${userName}"comap already exists. Please choose another.`
         });
+    }
+});
+
+app.post('/login', async (req,res)=>{
+    const {userName, password}=req.body;
+    const existingUser=await userModel.findOne({userName});
+    if(isNullOrUndefined(existingUser))
+        res.status(401).send({err:"Username doesn't exist."});
+    else{
+        const hashedPwd=existingUser.password;
+        if(bcrypt.compareSync(password,hashedPwd)){
+            req.session.userId=existingUser._id;
+            console.log('Session saved with', req.session);
+            res.status(200).send({success:"logged in"});
+        }else{
+            res.status(401).send({err:"Password is incorrect."});
+        }
     }
 });
 app.get('/', (req, res) => {
