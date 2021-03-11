@@ -76,7 +76,16 @@ app.post('/login', async (req,res)=>{
         }
     }
 });
-app.get('/', (req, res) => {
+
+const AuthMiddleware=async (req,res,next)=>{
+    console.log("Session",req.session);
+    //added user key to req
+    if(isNullOrUndefined(req.session) || isNullOrUndefined(req.session.userId)){
+        res.status(401).send({err:"Not logged in"});
+    }else
+        next();
+};
+app.get('/',AuthMiddleware, (req, res) => {
     res.send("Welcome to mayur's todo app");
 })
 app.listen(process.env.PORT, () => {
