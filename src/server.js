@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: "http://todo-frontend-mayur.herokuapp.com"
+    origin: "https://todo-frontend-mayur.herokuapp.com"
 }))
 
 app.use(session({
