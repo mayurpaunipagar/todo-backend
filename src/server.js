@@ -90,15 +90,35 @@ app.get('/todo', AuthMiddleware, async (req, res) => {
     const allTodos = await todoModel.find({ userId: req.session.userId });
     res.send(allTodos);
 })
+
 app.post('/todo', AuthMiddleware, async (req, res) => {
     const todo = req.body;
-    todo.creationTime = new Date();
+    todo.createdAt = new Date();
     todo.done = false;
     todo.userId = req.session.userId;
     const newTodo = new todoModel(todo);
     await newTodo.save();
     res.status(201).send(newTodo);
 });
+
+app.put('/todo/:todoid',AuthMiddleware,async (req,res)=>{
+    const {task}=req.body;
+    const todoid=req.params.todoid;
+
+    try {
+        const todo=await todoModel.findOne({_id:todoid,userId:req.session.userId});
+        if(isNullOrUndefined(todo))
+            res.sendStatus(404);
+        else{
+            todo.task=task;
+            await todo.save();
+            res.send(todo);
+        }
+    } catch (e){
+        res.sendStatus(404);
+    }
+});
+
 app.get('/', (req, res) => {
     res.send("Welcome to mayur's todo backend app");
 })
