@@ -53,41 +53,56 @@ app.post('/signup', async (req, res) => {
         await newUser.save();
         req.session.userId = newUser._id;
         res.status(201).send({ success: "Signed up" });
-    }else{
+    } else {
         res.status(400).send({
-            err:`Username "${userName}"comap already exists. Please choose another.`
+            err: `Username "${userName}"comap already exists. Please choose another.`
         });
     }
 });
 
-app.post('/login', async (req,res)=>{
-    const {userName, password}=req.body;
-    const existingUser=await userModel.findOne({userName});
-    if(isNullOrUndefined(existingUser))
-        res.status(401).send({err:"Username doesn't exist."});
-    else{
-        const hashedPwd=existingUser.password;
-        if(bcrypt.compareSync(password,hashedPwd)){
-            req.session.userId=existingUser._id;
+app.post('/login', async (req, res) => {
+    const { userName, password } = req.body;
+    const existingUser = await userModel.findOne({ userName });
+    if (isNullOrUndefined(existingUser))
+        res.status(401).send({ err: "Username doesn't exist." });
+    else {
+        const hashedPwd = existingUser.password;
+        if (bcrypt.compareSync(password, hashedPwd)) {
+            req.session.userId = existingUser._id;
             console.log('Session saved with', req.session);
-            res.status(200).send({success:"logged in"});
-        }else{
-            res.status(401).send({err:"Password is incorrect."});
+            res.status(200).send({ success: "logged in" });
+        } else {
+            res.status(401).send({ err: "Password is incorrect." });
         }
     }
 });
 
-const AuthMiddleware=async (req,res,next)=>{
-    console.log("Session",req.session);
+const AuthMiddleware = async (req, res, next) => {
+    console.log("Session", req.session);
     //added user key to req
-    if(isNullOrUndefined(req.session) || isNullOrUndefined(req.session.userId)){
-        res.status(401).send({err:"Not logged in"});
-    }else
+    if (isNullOrUndefined(req.session) || isNullOrUndefined(req.session.userId)) {
+        res.status(401).send({ err: "Not logged in" });
+    } else
         next();
 };
-app.get('/',AuthMiddleware, (req, res) => {
-    res.send("Welcome to mayur's todo app");
+
+app.get('/todo', AuthMiddleware, async (req, res) => {
+    const allTodos = await todoModel.find({ userId: req.session.userId });
+    res.send(allTodos);
 })
+app.post('/todo', AuthMiddleware, async (req, res) => {
+    const todo = req.body;
+    todo.creationTime = new Date();
+    todo.done = false;
+    todo.userId = req.session.userId;
+    const newTodo = new todoModel(todo);
+    await newTodo.save();
+    res.status(201).send(newTodo);
+});
+app.get('/', (req, res) => {
+    res.send("Welcome to mayur's todo backend app");
+})
+
 app.listen(process.env.PORT, () => {
     console.log("listening @", process.env.PORT);
 })
