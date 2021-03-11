@@ -101,24 +101,33 @@ app.post('/todo', AuthMiddleware, async (req, res) => {
     res.status(201).send(newTodo);
 });
 
-app.put('/todo/:todoid',AuthMiddleware,async (req,res)=>{
-    const {task}=req.body;
-    const todoid=req.params.todoid;
+app.put('/todo/:todoid', AuthMiddleware, async (req, res) => {
+    const { task } = req.body;
+    const todoid = req.params.todoid;
 
     try {
-        const todo=await todoModel.findOne({_id:todoid,userId:req.session.userId});
-        if(isNullOrUndefined(todo))
+        const todo = await todoModel.findOne({ _id: todoid, userId: req.session.userId });
+        if (isNullOrUndefined(todo))
             res.sendStatus(404);
-        else{
-            todo.task=task;
+        else {
+            todo.task = task;
             await todo.save();
             res.send(todo);
         }
-    } catch (e){
+    } catch (e) {
         res.sendStatus(404);
     }
 });
 
+app.delete('/todo/:todoid', AuthMiddleware, async (req, res) => {
+    const todoid = req.params.todoid;
+    try {
+        await todoModel.deleteOne({ _id: todoid, userId:req.session.userId});
+        res.sendStatus(200);
+    } catch (e) {
+        res.sendStatus(404);
+    }
+});
 app.get('/', (req, res) => {
     res.send("Welcome to mayur's todo backend app");
 })
