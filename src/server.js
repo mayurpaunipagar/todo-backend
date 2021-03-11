@@ -138,6 +138,10 @@ app.get('/logout',(req,res)=>{
         res.sendStatus(200);
     }
 })
+app.get('/userinfo',AuthMiddleware,async (req,res)=>{
+    const user=await userModel.findById(req.session.userId);
+    res.send({userName:user.userName});
+})
 app.get('/', (req, res) => {
     res.send("Welcome to mayur's todo backend app");
 })
