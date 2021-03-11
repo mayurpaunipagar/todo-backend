@@ -128,6 +128,16 @@ app.delete('/todo/:todoid', AuthMiddleware, async (req, res) => {
         res.sendStatus(404);
     }
 });
+
+app.get('/logout',(req,res)=>{
+    if(!isNullOrUndefined(req.session)){
+        req.session.destroy(()=>{
+            res.sendStatus(200);
+        });
+    }else{
+        res.sendStatus(200);
+    }
+})
 app.get('/', (req, res) => {
     res.send("Welcome to mayur's todo backend app");
 })
