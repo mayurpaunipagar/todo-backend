@@ -81,6 +81,7 @@ const AuthMiddleware = async (req, res, next) => {
     console.log("Session", req.session);
     //added user key to req
     if (isNullOrUndefined(req.session) || isNullOrUndefined(req.session.userId)) {
+        console.log("not logged in", req.session.userId);
         res.status(401).send({ err: "Not logged in" });
     } else
         next();
@@ -145,7 +146,7 @@ app.get('/userinfo',AuthMiddleware,async (req,res)=>{
 app.get('/', (req, res) => {
     res.send("Welcome to mayur's todo backend app");
 })
-
-app.listen(process.env.PORT, () => {
-    console.log("listening @", process.env.PORT);
+const myPort=process.env.PORT || 9999;
+app.listen(myPort, () => {
+    console.log("listening @", myPort);
 })
