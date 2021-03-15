@@ -11,8 +11,8 @@ app.use(express.json());
 app.use(cors({
     credentials: true,
     origin: "https://todo-frontend-mayur.herokuapp.com"
-}))
-
+}));
+app.set("trust proxy",1);
 app.use(session({
     secret: session_secret,
     cookie: { maxAge: 1 * 60 * 60 * 1000, sameSite: "none", secure: true }
